@@ -23,6 +23,33 @@
 
 #include <csploit/str_array.h>
 
+/**
+ * @brief Replace invalid UTF-8 bytes in-place with '?'.
+ *
+ * Android's CheckJNI aborts the process if NewStringUTF receives a string with
+ * invalid Modified UTF-8 bytes.  Process stdout/stderr can contain arbitrary
+ * binary data, so sanitize before passing to JNI.
+ */
+static void sanitize_utf8(char *s) {
+  unsigned char *p = (unsigned char *)s;
+  while (*p) {
+    if (*p < 0x80) {
+      p++;
+    } else if ((*p & 0xE0) == 0xC0) {
+      if ((p[1] & 0xC0) != 0x80) { *p = '?'; p++; }
+      else p += 2;
+    } else if ((*p & 0xF0) == 0xE0) {
+      if ((p[1] & 0xC0) != 0x80 || (p[2] & 0xC0) != 0x80) { *p = '?'; p++; }
+      else p += 3;
+    } else if ((*p & 0xF8) == 0xF0) {
+      if ((p[1] & 0xC0) != 0x80 || (p[2] & 0xC0) != 0x80 || (p[3] & 0xC0) != 0x80) { *p = '?'; p++; }
+      else p += 4;
+    } else {
+      *p = '?'; p++;
+    }
+  }
+}
+
 #include "log.h"
 #include "cache.h"
 #include "child.h"
@@ -48,10 +75,11 @@ jobject create_newline_event(JNIEnv *env, void *arg) {
   str = NULL;
   newline = NULL;
   
+  sanitize_utf8((char *)arg);
   str = (*env)->NewStringUTF(env, (const char *)arg);
-  
+
   if(!str) goto jni_error;
-  
+
   newline =  (*env)->NewObject(env,
                                cache.csploit.events.newline.class,
                                cache.csploit.events.newline.ctor,
@@ -84,10 +112,11 @@ jobject create_stderrnewline_event(JNIEnv *env, void *arg) {
   str = NULL;
   stderr_newline = NULL;
   
-  str = (*env)->NewStringUTF(env, (const char *) arg);
-  
+  sanitize_utf8((char *)arg);
+  str = (*env)->NewStringUTF(env, (const char *)arg);
+
   if(!str) goto jni_error;
-  
+
   stderr_newline = (*env)->NewObject(env,
                                      cache.csploit.events.stderrnewline.class,
                                      cache.csploit.events.stderrnewline.ctor,
@@ -206,8 +235,9 @@ jobject create_hop_event(JNIEnv *env, message *m) {
     return NULL;
   
   pos = string_array_next(m, hop_info->name, NULL);
-  
+
   if(pos) {
+    sanitize_utf8(pos);
     jname = (*env)->NewStringUTF(env, pos);
     if(!jname) goto cleanup;
   }
@@ -726,12 +756,13 @@ jobject create_host_event(JNIEnv *env, message *m) {
   (*env)->SetByteArrayRegion(env, eth_addr, 0, 6, (const jbyte *) hinfo->eth_addr);
   
   pos = string_array_next(m, hinfo->name, pos);
-  
+
   if(pos) {
-    jname = (*env)->NewStringUTF(env, hinfo->name);
+    sanitize_utf8(pos);
+    jname = (*env)->NewStringUTF(env, pos);
     if(!jname) goto cleanup;
   }
-  
+
   res = (*env)->NewObject(env,
                           cache.csploit.events.host.class,
                           cache.csploit.events.host.ctor,

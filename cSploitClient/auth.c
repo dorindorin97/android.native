@@ -167,7 +167,7 @@ int on_auth_status(message *m) {
  * @brief check if we are authenticated into the server
  * @returns 1 if logged in, 0 if not.
  */
-inline int authenticated() {
+extern inline int authenticated() {
   register int ret;
   
   pthread_mutex_lock(&(logged.control.mutex));

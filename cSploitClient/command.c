@@ -18,6 +18,8 @@
 #include <ctype.h>
 #include <pthread.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <csploit/message.h>
 #include <csploit/control_messages.h>

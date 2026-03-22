@@ -48,15 +48,15 @@ void nrdr_init() {
   int ret;
   
   ret = regcomp(&host_add_edit_pattern,
-      "^HOST_(ADD |EDIT) { mac: ([^,]+), ip: ([^,]+), name: (.*) }", REG_EXTENDED);
-  
+      "^HOST_(ADD |EDIT) [{] mac: ([^,]+), ip: ([^,]+), name: (.*) [}]", REG_EXTENDED);
+
   if(ret) {
     print(ERROR, "regcomp(host_add_edit_pattern): %d", ret);
     return;
   }
-  
+
   ret = regcomp(&host_del_pattern,
-      "^HOST_DEL  { ip: (.*) }", REG_EXTENDED);
+      "^HOST_DEL  [{] ip: (.*) [}]", REG_EXTENDED);
       
   if(ret) {
     print(ERROR, "regcomp(host_del_pattern): %d", ret);

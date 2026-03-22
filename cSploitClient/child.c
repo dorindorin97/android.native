@@ -53,7 +53,7 @@ child_node *create_child(uint16_t pending_seq_no) {
  * @param id the id of the wanted child
  * @returns the found child on success, NULL on error
  */
-inline child_node *get_child_by_id(uint16_t id) {
+extern inline child_node *get_child_by_id(uint16_t id) {
   register child_node *c;
   for(c=(child_node *) children.list.head;c && c->id != id; c= (child_node *) c->next);
   return c;
@@ -64,7 +64,7 @@ inline child_node *get_child_by_id(uint16_t id) {
  * @param seq the pensing sequence number of the wanted child
  * @returns the found child on success, NULL on error
  */
-inline child_node *get_child_by_pending_seq(uint16_t seq) {
+extern inline child_node *get_child_by_pending_seq(uint16_t seq) {
   register child_node *c;
   for(c=(child_node *) children.list.head;c && (!c->pending || c->seq != seq); c= (child_node *) c->next);
   return c;
