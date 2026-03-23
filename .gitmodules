@@ -15,7 +15,7 @@
 	url = https://github.com/tux-mind/platform_external_freetds.git
 [submodule "hydra"]
 	path = hydra
-	url = https://github.com/tux-mind/thc-hydra.git
+	url = https://github.com/vanhauser-thc/thc-hydra.git
 [submodule "libbthread"]
 	path = libbthread
 	url = https://github.com/tux-mind/libbthread.git
@@ -36,7 +36,7 @@
 	url = https://github.com/tux-mind/platform_external_libneon.git
 [submodule "libpcap"]
 	path = libpcap
-	url = https://github.com/android/platform_external_libpcap.git
+	url = https://github.com/the-tcpdump-group/libpcap.git
 [submodule "libreadline"]
 	path = libreadline
 	url = https://github.com/tux-mind/platform_external_libreadline.git
@@ -51,10 +51,10 @@
 	url = https://github.com/tux-mind/platform_external_ncurses.git
 [submodule "nmap"]
 	path = nmap
-	url = https://github.com/tux-mind/platform_external_nmap.git
+	url = https://github.com/aeticusdev/nmap-android.git
 [submodule "openssl"]
 	path = openssl
-	url = https://github.com/android/platform_external_openssl.git
+	url = https://github.com/openssl/openssl.git
 [submodule "ruby"]
 	path = ruby
 	url = https://github.com/cSploit/android.native.ruby.git
@@ -126,7 +126,7 @@
 	url = https://github.com/android/platform_external_sqlite.git
 [submodule "tcpdump"]
 	path = tcpdump
-	url = https://github.com/tux-mind/platform_external_tcpdump.git
+	url = https://github.com/the-tcpdump-group/tcpdump.git
 [submodule "unixODBC"]
 	path = unixODBC
 	url = https://github.com/tux-mind/platform_external_unixODBC.git

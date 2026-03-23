@@ -2,9 +2,9 @@
 
 oldpwd=$(pwd)
 
-UPDATE_SERVER="http://update.csploit.org/"
-RUBY_VERSION=1.0.0
-CORE_VERSION=1.0.1
+UPDATE_SERVER="https://github.com/dorindorin97/android.native/releases/download/"
+RUBY_VERSION=1.0.1
+CORE_VERSION=2.0.0
 DEBUG=false
 
 die() {
@@ -29,7 +29,8 @@ nmap-rpc
 nmap-os-db
 nmap-protocols
 nmap-services
-nmap-service-probes"
+nmap-service-probes
+nmap-netbios-sfx"
 ettercap_share="etter.mime
 etter.filter.kill
 etter.services
@@ -46,9 +47,6 @@ etterlog.dtd
 etter.filter.examples
 etter.filter.pcre
 etter.finger.mac"
-ndk_empty_scripts="build-host-executable.mk
-build-host-shared-library.mk
-build-host-static-library.mk"
 directories="/enc/trans/
 /enc/
 /io/
@@ -58,28 +56,15 @@ directories="/enc/trans/
 /mathn/
 /racc/
 /"
-apis="9
-16"
-abis="armeabi
-armeabi-v7a
-arm64-v8a"
+# API 24+ (Android 7.0+) — drops legacy armeabi, adds x86_64 for emulator support
+apis="24"
+abis="armeabi-v7a
+arm64-v8a
+x86_64"
 
 check_ndk() {
   ndk_build=$(which ndk-build) || \
-  (echo "android NDK not found, please ensure that it's directory is in your PATH"; die)
-
-  ndk_dir=$(dirname "${ndk_build}")
-  ndk_dir="${ndk_dir}/build/core/"
-
-  sudo=""
-
-  test -w "${ndk_dir}" || sudo="sudo"
-
-  for s in $ndk_empty_scripts; do
-    if [ ! -f "${ndk_dir}${s}" ]; then
-      { $sudo touch "${ndk_dir}${s}" 2>&1 | tee >(cat - >&3) ;} || die
-    fi
-  done
+  (echo "Android NDK not found. Install NDK r27+ and ensure ndk-build is in PATH."; die)
 }
 
 delete_core_packages() {
@@ -119,24 +104,15 @@ select_lower_api() {
   done
 }
 
-# this is a temporary fix to https://github.com/android-ndk/ndk/issues/56
-# $1: path to translate
-# $2: target ABI
-from_armeabi_to_another_abi() {
-  case $2 in
-    arm64-*)
-      sed -E 's/arm-linux-androideabi-[0-9.]+/aarch64-linux-android-4.9/;s/arm-linux-androideabi-/aarch64-linux-android-/' <<<$1
-      ;;
-    *)
-      echo $1
-      ;;
-  esac
+# NDK r18+ uses clang for all ABIs — no per-ABI strip binary mapping needed
+strip_for_abi() {
+  echo "llvm-strip"
 }
 
 build_jni_libs() {
   app_root=$(readlink -f ../)
   
-  strip=$( ndk-which strip ) 2>&3 || die
+  strip="llvm-strip"
   
   build cSploitCommon cSploitClient
   
@@ -148,7 +124,7 @@ build_jni_libs() {
     
     mkdir -p "${bins}"
 
-    strip_abi=$(from_armeabi_to_another_abi $strip $abi)
+    strip_abi=$(strip_for_abi $abi)
     
     for lib in cSploitCommon cSploitClient; do
       install -p "${objs}/lib${lib}.so" "${bins}/lib${lib}.so" >&3 2>&1 || die
